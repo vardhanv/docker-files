@@ -1,0 +1,65 @@
+FROM nvidia/cuda:9.2-cudnn7-devel-ubuntu18.04
+RUN  \
+    export DEBIAN_FRONTEND=noninteractive && \
+    echo "US/Pacific" > /etc/timezone && \
+    apt-get update && \
+    apt-get dist-upgrade -y && \
+    apt-get install -y --no-install-recommends tzdata && \
+    dpkg-reconfigure --frontend noninteractive tzdata && \
+    apt-get install -y --no-install-recommends build-essential software-properties-common apt-utils apt-transport-https && \
+    add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
+    apt-get update -y  && \
+    apt-get install -y  --no-install-recommends git-core vim  \ 
+    lshw \
+    curl \ 
+    cmake \
+    cscope \
+    gdb \
+    sudo \
+    git \
+    wget \
+    ssh \
+    openssh-server \
+    net-tools \
+    doxygen \ 
+    libboost-all-dev \
+    libgflags-dev \
+    libgoogle-glog-dev \
+    libhdf5-serial-dev \
+    libopencv-dev \
+    libprotobuf-dev \
+    libsnappy-dev \
+    libtinyxml-dev \
+    protobuf-compiler \
+    python3-dev \
+    python3-numpy \
+    python3-pip \
+    python3-setuptools \
+    python3-scipy  \
+    python3-skimage \
+    graphviz
+
+
+RUN apt-get install gcc-7 g++-7 -y && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 --slave /usr/bin/g++ g++ /usr/bin/g++-7 && \ 
+    update-alternatives --config gcc 
+
+RUN \
+   apt-get -y --no-install-recommends install libtinyxml-dev \
+           libblas-dev liblapacke-dev liblapack-doc  \
+           liblmdb-dev libleveldb-dev libopencv-dev  && \
+           pip3 install wheel && \ 
+           pip3 install pydot Pillow protobuf jupyter matplotlib
+
+RUN useradd -ms /bin/bash vardhan && echo "vardhan:vardhan" | chpasswd &&  adduser vardhan sudo
+
+USER vardhan
+WORKDIR /home/vardhan
+
+RUN cd /home/vardhan && touch .bashrc && \
+    echo "set -o vi" >> /home/vardhan/.bashrc && \
+    echo "export LD_LIBRARY_PATH=/home/vardhan/host/libs/caffe/distribute/lib:$LD_LIBRARY_PATH" >> /home/vardhan/.bashrc && \
+    echo "export PYTHONPATH=/home/vardhan/host/libs/caffe/distribute/python:$PYTHONPATH" >> /home/vardhan/.bashrc && \
+    echo "set -o vi" >> /home/vardhan/.bashrc && \
+    touch .vimrc && echo "set ts=3 shiftwidth=3 expandtab" >> .vimrc && \
+    mkdir host
